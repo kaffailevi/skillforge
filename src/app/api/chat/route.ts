@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { StreamEvent } from "@/lib/chat-types";
+import { EMPTY_PROFILE, Profile } from "@/lib/profile";
 import { mockMentorReply, streamWords } from "@/lib/server/mock-mentor";
 
 // POST /api/chat — receives the conversation, answers with a stream of Server-Sent Events.
@@ -14,6 +15,7 @@ const ChatRequest = z.object({
     )
     .min(1)
     .max(100),
+  profile: Profile.default(EMPTY_PROFILE),
 });
 
 export async function POST(request: Request) {
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "The last message must be a non-empty user message." }, { status: 400 });
   }
 
-  const answer = mockMentorReply(lastMessage.content);
+  const answer = mockMentorReply(lastMessage.content, parsed.data.profile);
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({

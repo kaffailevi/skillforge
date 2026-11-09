@@ -30,4 +30,4 @@ Open http://localhost:3000. Without any API key the mentor runs in **mock mode**
 
 ## Status
 
-Step 3 of [the plan](docs/steps.md): full chat UI with the mock mentor — conversations in a sidebar (rename, delete), Markdown answers, light/dark/system theme, phone layout. Everything is saved in the browser.
+Step 4 of [the plan](docs/steps.md): chat UI with the mock mentor (conversations, Markdown, theme, phone layout) and a profile page whose data goes into the mentor's system prompt. Everything is saved in the browser.

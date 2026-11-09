@@ -1,4 +1,5 @@
 import "server-only";
+import { levelLabel, type Profile } from "@/lib/profile";
 
 // The mock mentor answers without any AI provider, so the app works before an API key exists.
 // It picks a canned answer by keyword and streams it word by word, like a real model would.
@@ -29,10 +30,44 @@ const ANSWERS: { keywords: string[]; answer: string }[] = [
 const FALLBACK =
   "I'm **SkillForge**, your career mentor (running in *mock mode*: no AI provider is configured yet).\n\nTell me what you are learning and what role you want, and I'll suggest the next steps. Try asking about **React**, **Java** or your **career**.";
 
-export function mockMentorReply(userMessage: string): string {
+const ASKS_FOR_NEXT_STEP = /\bnext\b|where (do|should) i start/i;
+
+export function mockMentorReply(userMessage: string, profile: Profile): string {
+  if (ASKS_FOR_NEXT_STEP.test(userMessage)) return nextStepAnswer(profile);
   const text = userMessage.toLowerCase();
   const match = ANSWERS.find(({ keywords }) => keywords.some((keyword) => text.includes(keyword)));
-  return match?.answer ?? FALLBACK;
+  if (match) return match.answer;
+  return profile.displayName ? `Hi ${profile.displayName}! ${FALLBACK}` : FALLBACK;
+}
+
+// "What should I learn next?" is answered from the profile: the weakest skill first, the strongest as an anchor.
+function nextStepAnswer(profile: Profile): string {
+  if (profile.skills.length === 0) {
+    return "I can't pick a next step yet: your profile has no skills. Open **Profile**, add the skills you use with a level from 1 to 5, and ask me again.";
+  }
+
+  const byLevel = [...profile.skills].sort((a, b) => a.level - b.level);
+  const weakest = byLevel[0];
+  const strongest = byLevel[byLevel.length - 1];
+
+  const steps = [
+    `1. **${weakest.name}** — you rated it ${weakest.level}/5 (${levelLabel(weakest.level)}). ${adviceFor(weakest.level)}`,
+  ];
+  if (strongest.level > weakest.level) {
+    steps.push(
+      `2. **Use ${strongest.name}** (${strongest.level}/5) as your anchor: build one small project that needs both ${strongest.name} and ${weakest.name}.`,
+    );
+  }
+
+  const opening = profile.displayName ? `${profile.displayName}, here is` : "Here is";
+  const goal = profile.goal ? ` toward your goal (*${profile.goal.replace(/\s+/g, " ")}*)` : "";
+  return `${opening} what I'd do next${goal}:\n\n${steps.join("\n")}\n\n_Mock mode: this answer is built from your profile, not by an AI model._`;
+}
+
+function adviceFor(level: number): string {
+  if (level <= 2) return "Start with a beginner course and write a little code every day.";
+  if (level === 3) return "Build one small project end to end without following a tutorial.";
+  return "Go deeper: read real-world code and explain it to someone else.";
 }
 
 // Yields the answer piece by piece. Stops early when the browser cancels the request.

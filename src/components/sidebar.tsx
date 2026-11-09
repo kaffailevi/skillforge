@@ -49,6 +49,25 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
         </Link>
       </div>
 
+      <nav aria-label="Pages" className="mt-3 flex flex-col px-2 text-sm">
+        {[
+          { href: "/", label: "Chat" },
+          { href: "/profile", label: "Profile" },
+        ].map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            onClick={onNavigate}
+            aria-current={pathname === link.href ? "page" : undefined}
+            className={`rounded-lg px-2 py-1.5 ${
+              pathname === link.href ? "bg-background font-medium" : "text-muted hover:text-foreground"
+            }`}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+
       <h2 className="px-4 pt-5 pb-1 text-xs font-medium tracking-wide text-muted uppercase">Conversations</h2>
       <ul className="flex-1 overflow-y-auto px-2 pb-2">
         {state === null ? (

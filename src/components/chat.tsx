@@ -9,6 +9,7 @@ import {
   type Conversation,
 } from "@/lib/conversations";
 import { useLocalStore } from "@/lib/local-store";
+import { profileStore } from "@/lib/profile-store";
 import { readEventStream } from "@/lib/read-event-stream";
 import { Markdown } from "@/components/markdown";
 
@@ -60,7 +61,10 @@ function ChatSession({ conversation }: { conversation: Conversation | null }) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({
+          messages: history.map(({ role, content }) => ({ role, content })),
+          profile: profileStore.get(), // read at send time, so a just-saved change counts
+        }),
         signal: controller.signal,
       });
       if (!response.ok || !response.body) throw new Error(`The mentor is not available (HTTP ${response.status}).`);
