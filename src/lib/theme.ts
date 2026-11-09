@@ -5,7 +5,7 @@ import { THEME_KEY } from "@/lib/theme-script";
 export const THEMES = ["light", "dark", "system"] as const;
 export type Theme = (typeof THEMES)[number];
 
-export const themeStore = createLocalStore<Theme>(THEME_KEY, z.enum(THEMES), "system");
+export const themeStore = createLocalStore<Theme>(THEME_KEY, z.enum(THEMES), () => "system");
 
 // "system" removes the attribute, so the CSS falls back to prefers-color-scheme.
 export function applyTheme(theme: Theme) {

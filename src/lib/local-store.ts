@@ -9,18 +9,18 @@ export type LocalStore<T> = {
   subscribe: (listener: () => void) => () => void;
 };
 
-export function createLocalStore<T>(key: string, schema: z.ZodType<T>, fallback: T): LocalStore<T> {
+export function createLocalStore<T>(key: string, schema: z.ZodType<T>, fallback: () => T): LocalStore<T> {
   let cache: T | undefined; // useSyncExternalStore needs the same object back until something changes
   const listeners = new Set<() => void>();
 
   function read(): T {
     try {
       const saved = localStorage.getItem(key);
-      if (saved === null) return fallback;
+      if (saved === null) return fallback();
       const parsed = schema.safeParse(JSON.parse(saved));
-      return parsed.success ? parsed.data : fallback;
+      return parsed.success ? parsed.data : fallback();
     } catch {
-      return fallback;
+      return fallback();
     }
   }
 

@@ -29,7 +29,7 @@ The learner writes a message; the mentor's answer appears word by word.
 - Acceptance: change a skill's level, ask "what should I learn next?" — the answer takes the new level into account.
 
 ### F4 — AI providers
-- Default provider: **Anthropic, model Claude Haiku**. Second provider: **OpenAI, a mini model**. A **mock** provider streams canned mentor answers and is used when no API key is configured, so the app works without any key.
+- Default provider: **Google Gemini** (Gemini 3.5 Flash; Flash-Lite as the faster option). Second provider (step 6): **Anthropic Claude Haiku** or **OpenAI, a mini model**, whichever key is available. A **mock** provider streams canned mentor answers and is used when no API key is configured, so the app works without any key.
 - The learner picks provider and model in the UI; the choice is remembered.
 - Acceptance: with no keys the mock answers; with a key the real model answers; switching provider changes who answers the next message.
 

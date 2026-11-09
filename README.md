@@ -7,7 +7,7 @@ Built during the **FutureReady IT** course (Module 1 — Web Development & AI-As
 ## Stack
 
 - Next.js (App Router), React, TypeScript, Tailwind CSS
-- Vercel AI SDK — Anthropic Claude Haiku (default), OpenAI (second provider), a mock model when no key is set
+- Vercel AI SDK — Google Gemini (default), a second provider in step 6, a mock model when no key is set
 - Supabase Postgres, used only from the server
 - GitHub sign-in
 - Hosted on Vercel
@@ -16,6 +16,7 @@ Built during the **FutureReady IT** course (Module 1 — Web Development & AI-As
 
 - [Requirements](docs/requirements.md) — what the app does and how each feature is accepted
 - [Build steps](docs/steps.md) — the order it is built in, one commit per step
+- [AI providers](docs/ai-providers.md) — Gemini, the mock, and the environment variables they need
 
 ## Run it locally
 
@@ -26,8 +27,8 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Without any API key the mentor runs in **mock mode** and streams canned answers.
+Open http://localhost:3000. Without any API key the mentor runs in **mock mode** and streams canned answers. To use Gemini, copy `.env.example` to `.env.local` and fill in the key; see [docs/ai-providers.md](docs/ai-providers.md).
 
 ## Status
 
-Step 4 of [the plan](docs/steps.md): chat UI with the mock mentor (conversations, Markdown, theme, phone layout) and a profile page whose data goes into the mentor's system prompt. Everything is saved in the browser.
+Step 5 of [the plan](docs/steps.md): the mentor answers with Google Gemini through the Vercel AI SDK (or the mock when no key is set), using your profile; conversations, profile, theme and model choice are saved in the browser.

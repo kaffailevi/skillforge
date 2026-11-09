@@ -10,8 +10,8 @@ Commit messages: `step N — <what>`.
 | 2 | Next.js skeleton (App Router, TypeScript, Tailwind), `/api/chat` streaming from the **mock** model, messages in `localStorage` | F1 (raw), F4 (mock) | — |
 | 3 | Full UI with mock data: sidebar, conversations, Markdown rendering (sanitized), theme, mobile layout | F1, F2, F7 | — |
 | 4 | Profile page and profile in the system prompt | F3, F5 | — |
-| 5 | Real model through the Vercel AI SDK (`useChat`), Anthropic Haiku, provider/model picker, `docs/ai-providers.md` | F1, F4 | Anthropic API key in `.env.local` (mock keeps working without it) |
-| 6 | Second provider (OpenAI mini) and Markdown export | F4, F6 | OpenAI key (optional) |
+| 5 | Real model through the Vercel AI SDK (`useChat`), Google Gemini, provider/model picker, `docs/ai-providers.md` | F1, F4 | Gemini API key in `.env.local` (mock keeps working without it) |
+| 6 | Second provider (Anthropic Haiku or OpenAI mini) and Markdown export | F4, F6 | Anthropic or OpenAI key (optional) |
 | 7 | Deploy to Vercel, `docs/vercel.md` | — | Vercel account (sign in with GitHub), import the repo |
 | 8 | Token usage, cost estimate, LRU cache | F8 | — |
 | 9 | GitHub login, verified email only, `docs/auth.md` | F9 | GitHub OAuth apps (local + production) |

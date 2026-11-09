@@ -1,4 +1,5 @@
 import "server-only";
+import { createUIMessageStream } from "ai";
 import { levelLabel, type Profile } from "@/lib/profile";
 
 // The mock mentor answers without any AI provider, so the app works before an API key exists.
@@ -77,4 +78,20 @@ export async function* streamWords(text: string, signal: AbortSignal, delayMs = 
     yield piece;
     await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
+}
+
+// The mock answer in the AI SDK's UI message stream format, so useChat reads it like a real model's answer.
+export function mockMentorStream(answer: string, signal: AbortSignal) {
+  return createUIMessageStream({
+    async execute({ writer }) {
+      const id = "mock-text";
+      writer.write({ type: "start" });
+      writer.write({ type: "text-start", id });
+      for await (const delta of streamWords(answer, signal)) {
+        writer.write({ type: "text-delta", id, delta });
+      }
+      writer.write({ type: "text-end", id });
+      writer.write({ type: "finish" });
+    },
+  });
 }

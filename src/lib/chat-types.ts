@@ -1,15 +1,4 @@
-// Types shared by the browser and the server.
-
 export type ChatRole = "user" | "assistant";
 
-export type ChatMessage = {
-  id: string;
-  role: ChatRole;
-  content: string;
-};
-
-// One Server-Sent Event sent by /api/chat. The answer arrives as many "delta" events, then one "done".
-export type StreamEvent =
-  | { type: "delta"; text: string }
-  | { type: "done" }
-  | { type: "error"; message: string };
+// A message as the browser stores it: plain text. useChat's UIMessage is converted to and from this.
+export type ChatMessage = { id: string; role: ChatRole; content: string };
