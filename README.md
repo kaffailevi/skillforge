@@ -30,4 +30,4 @@ Open http://localhost:3000. Without any API key the mentor runs in **mock mode**
 
 ## Status
 
-Step 2 of [the plan](docs/steps.md): Next.js skeleton, streaming chat with the mock mentor, messages saved in the browser.
+Step 3 of [the plan](docs/steps.md): full chat UI with the mock mentor — conversations in a sidebar (rename, delete), Markdown answers, light/dark/system theme, phone layout. Everything is saved in the browser.

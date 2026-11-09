@@ -5,6 +5,11 @@ import "server-only";
 
 const ANSWERS: { keywords: string[]; answer: string }[] = [
   {
+    keywords: ["markdown", "format"],
+    answer:
+      'My answers are Markdown. A table:\n\n| Skill | Level |\n| --- | --- |\n| React | 3 / 5 |\n| Java | 2 / 5 |\n\nA code block:\n\n```ts\nconst nextTopic = "TypeScript generics";\n```\n\nA link, which opens in a new tab: [Next.js docs](https://nextjs.org/docs).\n\nHTML is shown as text and never runs: <script>alert("hi")</script>',
+  },
+  {
     keywords: ["react", "frontend", "front-end"],
     answer:
       "Good choice. For React, I'd go in this order:\n\n1. **Components and props** — build small pieces and pass data down.\n2. **State and effects** — `useState`, `useEffect`, and when you don't need an effect.\n3. **Shared state** — lifting state up, then Context.\n\nWhich of these feels least solid to you right now?",
