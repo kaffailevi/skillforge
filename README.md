@@ -17,6 +17,17 @@ Built during the **FutureReady IT** course (Module 1 — Web Development & AI-As
 - [Requirements](docs/requirements.md) — what the app does and how each feature is accepted
 - [Build steps](docs/steps.md) — the order it is built in, one commit per step
 
+## Run it locally
+
+Needs Node.js 20 or newer.
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. Without any API key the mentor runs in **mock mode** and streams canned answers.
+
 ## Status
 
-Step 1 of [the plan](docs/steps.md): requirements only, no code yet.
+Step 2 of [the plan](docs/steps.md): Next.js skeleton, streaming chat with the mock mentor, messages saved in the browser.

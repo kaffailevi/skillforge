@@ -2,6 +2,8 @@
 
 SkillForge is an AI career mentor built with Next.js and the Vercel AI SDK. Scope and acceptance criteria: [docs/requirements.md](docs/requirements.md). Build order: [docs/steps.md](docs/steps.md).
 
+This is Next.js 16.4 with Cache Components; read [AGENTS.md](AGENTS.md) and the guides in `node_modules/next/dist/docs/` before relying on older Next.js knowledge.
+
 ## How we work
 
 - One step from `docs/steps.md` at a time. Do only what the step asks; no extra features.
