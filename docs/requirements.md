@@ -31,7 +31,8 @@ The learner writes a message; the mentor's answer appears word by word.
 ### F4 — AI providers
 - Default provider: **Google Gemini** (Gemini 3.5 Flash; Flash-Lite as the faster option). Second provider (step 6): **Anthropic Claude Haiku** or **OpenAI, a mini model**, whichever key is available. A **mock** provider streams canned mentor answers and is used when no API key is configured, so the app works without any key.
 - The learner picks provider and model in the UI; the choice is remembered.
-- Acceptance: with no keys the mock answers; with a key the real model answers; switching provider changes who answers the next message.
+- **Bring your own key:** each learner enters their own Gemini key in Settings. It is kept only in their browser and sent with each request to SkillForge's server, which uses it for that call and never stores or logs it. A server key (`.env.local`) exists only for local development and is never set on the public deployment.
+- Acceptance: with no keys the mock answers; with a key the real model answers; switching provider changes who answers the next message; on the public site a visitor without their own key cannot use Gemini.
 
 ### F5 — Mentor behaviour
 - A system prompt makes the model a tech career mentor: concrete, encouraging, honest about gaps, short by default, asks one clarifying question when the goal is unclear.
@@ -78,7 +79,7 @@ The learner writes a message; the mentor's answer appears word by word.
 
 ## Non-functional requirements
 
-- **Secrets** live only in environment variables: `.env.local` locally (never committed), Vercel *Environment Variables* in production. `.env.example` lists every name with an empty value.
+- **Secrets** live only in environment variables: `.env.local` locally (never committed), Vercel *Environment Variables* in production. `.env.example` lists every name with an empty value. The one exception is each learner's own Gemini key (F4), which stays in their browser.
 - Server-only code (provider keys, Supabase, tools) is in modules that import `server-only`.
 - Every external call handles its error path (`{ data, error }` from Supabase, non-2xx from APIs).
 - Two Supabase projects: one for local development, one for production.

@@ -53,6 +53,7 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
         {[
           { href: "/", label: "Chat" },
           { href: "/profile", label: "Profile" },
+          { href: "/settings", label: "Settings" },
         ].map((link) => (
           <Link
             key={link.href}

@@ -16,6 +16,7 @@ This is Next.js 16.4 with Cache Components; read [AGENTS.md](AGENTS.md) and the 
 - Next.js App Router, TypeScript strict. Server Components by default; `'use client'` only on components that need state, effects or browser APIs.
 - Anything that touches keys, Supabase or tools lives in `src/lib/server/` and starts with `import "server-only"`.
 - Secrets come only from environment variables. Never hard-code or log them. Never prefix a secret with `NEXT_PUBLIC_`.
+- Exception: each learner's own Gemini key stays in their browser and reaches the server only in the `X-Gemini-Api-Key` header ([docs/ai-providers.md](docs/ai-providers.md#bring-your-own-key)). Never store, log or return it. Never set `GOOGLE_GENERATIVE_AI_API_KEY` on Vercel.
 - Validate every input that crosses a boundary (request bodies, tool inputs) with Zod.
 - Handle the error path of every external call; show the user a readable message.
 - Styling: Tailwind utility classes and the theme tokens in `src/app/globals.css`. Keep the UI plain; improve it only when a step asks.

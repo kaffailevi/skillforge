@@ -12,7 +12,7 @@ Commit messages: `step N — <what>`.
 | 4 | Profile page and profile in the system prompt | F3, F5 | — |
 | 5 | Real model through the Vercel AI SDK (`useChat`), Google Gemini, provider/model picker, `docs/ai-providers.md` | F1, F4 | Gemini API key in `.env.local` (mock keeps working without it) |
 | 6 | Second provider (Anthropic Haiku or OpenAI mini) and Markdown export | F4, F6 | Anthropic or OpenAI key (optional) |
-| 7 | Deploy to Vercel, `docs/vercel.md` | — | Vercel account (sign in with GitHub), import the repo |
+| 7 | Bring-your-own Gemini key (Settings page), deploy to Vercel, `docs/vercel.md` | F4 | Vercel account (sign in with GitHub), import the repo, no key on Vercel |
 | 8 | Token usage, cost estimate, LRU cache | F8 | — |
 | 9 | GitHub login, verified email only, `docs/auth.md` | F9 | GitHub OAuth apps (local + production) |
 | 10 | Supabase persistence (4 tables), `docs/supabase.md` with the SQL | F10 | Two Supabase projects; run the SQL in the SQL Editor |

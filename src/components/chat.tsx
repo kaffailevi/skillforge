@@ -2,7 +2,9 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
+import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { apiKeyStore, keyHeaders } from "@/lib/api-key-store";
 import type { ChatMessage } from "@/lib/chat-types";
 import { conversationStore, saveMessages, type Conversation } from "@/lib/conversations";
 import { useLocalStore } from "@/lib/local-store";
@@ -32,10 +34,15 @@ function toChatMessage(message: UIMessage): ChatMessage {
   };
 }
 
-export function Chat({ available }: { available: ProviderId[] }) {
+// serverProviders: providers usable without the learner's key (the mock, or a key set on the server).
+export function Chat({ serverProviders }: { serverProviders: ProviderId[] }) {
   const state = useLocalStore(conversationStore);
   const savedChoice = useLocalStore(modelChoiceStore);
-  if (!state || !savedChoice) return <p className="p-6 text-sm text-muted">Loading…</p>;
+  const keys = useLocalStore(apiKeyStore);
+  if (!state || !savedChoice || !keys) return <p className="p-6 text-sm text-muted">Loading…</p>;
+
+  const available: ProviderId[] =
+    keys.google && !serverProviders.includes("google") ? [...serverProviders, "google"] : serverProviders;
 
   const conversation = state.conversations.find((item) => item.id === state.activeId) ?? null;
   return (
@@ -75,9 +82,9 @@ function ChatSession({ id, conversation, choice, available }: SessionProps) {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages, status]);
 
-  // Read at send time, so a profile or model change counts from the next message.
+  // Read at send time, so a profile, model or key change counts from the next message.
   function requestBody() {
-    return { body: { profile: profileStore.get(), model: choice } };
+    return { body: { profile: profileStore.get(), model: choice }, headers: keyHeaders() };
   }
 
   function send(text: string) {
@@ -114,6 +121,15 @@ function ChatSession({ id, conversation, choice, available }: SessionProps) {
             <div className="flex flex-col items-center gap-4 pt-10 text-center">
               <h2 className="text-xl font-semibold">What do you want to learn next?</h2>
               <p className="text-sm text-muted">Ask your mentor anything about your tech career.</p>
+              {!available.includes("google") && (
+                <p className="rounded-lg border border-border px-3 py-2 text-sm">
+                  You are talking to the <strong>mock mentor</strong>. To use Gemini, add your own API key in{" "}
+                  <Link href="/settings" className="text-accent underline">
+                    Settings
+                  </Link>
+                  .
+                </p>
+              )}
               <div className="flex flex-wrap justify-center gap-2">
                 {SUGGESTIONS.map((suggestion) => (
                   <button
@@ -215,7 +231,7 @@ function ModelPicker({ choice, available, disabled }: PickerProps) {
       {PROVIDERS.map((provider) => {
         const ready = available.includes(provider.id);
         return (
-          <optgroup key={provider.id} label={ready ? provider.label : `${provider.label} (no API key)`}>
+          <optgroup key={provider.id} label={ready ? provider.label : `${provider.label} (add your key in Settings)`}>
             {provider.models.map((model) => (
               <option key={model.id} value={`${provider.id}:${model.id}`} disabled={!ready}>
                 {model.label}

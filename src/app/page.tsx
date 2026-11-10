@@ -1,7 +1,7 @@
 import { Chat } from "@/components/chat";
-import { availableProviders } from "@/lib/server/models";
+import { serverProviders } from "@/lib/server/models";
 
 export default function Home() {
-  // Only the names of providers whose key is set reach the browser, never the keys.
-  return <Chat available={availableProviders()} />;
+  // Only the names of providers with a server key reach the browser, never the keys.
+  return <Chat serverProviders={serverProviders()} />;
 }

@@ -16,7 +16,8 @@ Built during the **FutureReady IT** course (Module 1 — Web Development & AI-As
 
 - [Requirements](docs/requirements.md) — what the app does and how each feature is accepted
 - [Build steps](docs/steps.md) — the order it is built in, one commit per step
-- [AI providers](docs/ai-providers.md) — Gemini, the mock, and the environment variables they need
+- [AI providers](docs/ai-providers.md) — Gemini with your own key, the mock, and the environment variables
+- [Vercel](docs/vercel.md) — how the app is deployed
 
 ## Run it locally
 
@@ -27,8 +28,8 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Without any API key the mentor runs in **mock mode** and streams canned answers. To use Gemini, copy `.env.example` to `.env.local` and fill in the key; see [docs/ai-providers.md](docs/ai-providers.md).
+Open http://localhost:3000. Without any API key the mentor runs in **mock mode** and streams canned answers. To use Gemini, paste your own key in **Settings** (kept only in your browser), or, for local development, copy `.env.example` to `.env.local` and fill it in. See [docs/ai-providers.md](docs/ai-providers.md).
 
 ## Status
 
-Step 5 of [the plan](docs/steps.md): the mentor answers with Google Gemini through the Vercel AI SDK (or the mock when no key is set), using your profile; conversations, profile, theme and model choice are saved in the browser.
+Step 7 of [the plan](docs/steps.md): the mentor answers with Google Gemini using **your own API key** (Settings), or the mock without one. Conversations, profile, theme, model choice and key are saved in the browser.
