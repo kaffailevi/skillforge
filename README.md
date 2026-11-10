@@ -2,6 +2,8 @@
 
 An AI career mentor for people learning tech. Sign in with GitHub, describe your skills and goal, and chat with a mentor that keeps a learning plan for you, remembers what you tell it, and asks before it changes anything.
 
+**Live:** https://skillforge-kl.vercel.app (bring your own Gemini key in Settings, or try the mock mentor)
+
 Built during the **FutureReady IT** course (Module 1 — Web Development & AI-Assisted Engineering).
 
 ## Stack
