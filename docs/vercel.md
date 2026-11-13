@@ -18,11 +18,14 @@ There is no `vercel.json`. Vercel detects Next.js and runs `npm install` and `np
 
 ## Environment variables
 
-None are needed yet. Each visitor brings their own Gemini key in **Settings** (see [ai-providers.md](ai-providers.md#bring-your-own-key)).
+Each visitor brings their own Gemini key in **Settings** (see [ai-providers.md](ai-providers.md#bring-your-own-key)), so there is no AI key on Vercel.
 
 | Variable | Set on Vercel? | Why |
 | --- | --- | --- |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | **No** | If set, every visitor without a key would use it, and spend your quota. Use it only in `.env.local`. |
+| `GITHUB_CLIENT_ID` | Yes (Production) | The **production** GitHub OAuth app ([auth.md](auth.md)) |
+| `GITHUB_CLIENT_SECRET` | Yes (Production), secret | The production app's client secret |
+| `SESSION_SECRET` | Yes (Production), secret | Encrypts the session cookie; not the same value as locally |
 
 Later steps add variables (GitHub login, Supabase, the Java backend). Each one is listed in its own doc and set under **Project → Settings → Environment Variables**. After adding or changing a variable, **redeploy**: Deployments → ⋯ → Redeploy.
 

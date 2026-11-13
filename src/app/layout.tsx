@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AppShell } from "@/components/app-shell";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 import "./globals.css";
 
@@ -30,9 +29,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="h-full">
-        <AppShell>{children}</AppShell>
-      </body>
+      {/* The app's pages get the sidebar from (app)/layout.tsx; /signin stands alone. */}
+      <body className="h-full">{children}</body>
     </html>
   );
 }

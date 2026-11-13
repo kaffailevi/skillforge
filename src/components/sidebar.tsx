@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type FormEvent, type KeyboardEvent } from "react";
+import { useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import {
   conversationStore,
   deleteConversation,
@@ -19,9 +19,10 @@ import { ThemePicker } from "@/components/theme-picker";
 type SidebarProps = {
   open: boolean; // only matters on small screens, where the sidebar is a slide-in menu
   onNavigate: () => void;
+  userMenu: ReactNode;
 };
 
-export function Sidebar({ open, onNavigate }: SidebarProps) {
+export function Sidebar({ open, onNavigate, userMenu }: SidebarProps) {
   const pathname = usePathname();
   const state = useLocalStore(conversationStore);
 
@@ -87,7 +88,8 @@ export function Sidebar({ open, onNavigate }: SidebarProps) {
         )}
       </ul>
 
-      <div className="border-t border-border p-3">
+      <div className="flex flex-col gap-3 border-t border-border p-3">
+        {userMenu}
         <ThemePicker />
       </div>
     </aside>

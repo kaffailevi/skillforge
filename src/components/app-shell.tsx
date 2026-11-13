@@ -5,7 +5,8 @@ import { MenuIcon } from "@/components/icons";
 import { Sidebar } from "@/components/sidebar";
 
 // Sidebar on the left; on phones it is hidden behind a menu button and slides in over the page.
-export function AppShell({ children }: { children: ReactNode }) {
+// userMenu is rendered on the server (it reads the session) and shown at the sidebar's foot.
+export function AppShell({ children, userMenu }: { children: ReactNode; userMenu: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -18,7 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           className="fixed inset-0 z-20 bg-black/40 md:hidden"
         />
       )}
-      <Sidebar open={menuOpen} onNavigate={() => setMenuOpen(false)} />
+      <Sidebar open={menuOpen} onNavigate={() => setMenuOpen(false)} userMenu={userMenu} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center gap-3 border-b border-border px-4 py-3 md:hidden">

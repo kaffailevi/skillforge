@@ -19,6 +19,7 @@ Built during the **FutureReady IT** course (Module 1 — Web Development & AI-As
 - [Requirements](docs/requirements.md) — what the app does and how each feature is accepted
 - [Build steps](docs/steps.md) — the order it is built in, one commit per step
 - [AI providers](docs/ai-providers.md) — Gemini with your own key, the mock, and the environment variables
+- [GitHub login](docs/auth.md) — sign-in, the session cookie, the two OAuth apps
 - [Vercel](docs/vercel.md) — how the app is deployed
 
 ## Run it locally
@@ -30,8 +31,8 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Without any API key the mentor runs in **mock mode** and streams canned answers. To use Gemini, paste your own key in **Settings** (kept only in your browser), or, for local development, copy `.env.example` to `.env.local` and fill it in. See [docs/ai-providers.md](docs/ai-providers.md).
+Sign-in with GitHub is required: set up the local OAuth app and `SESSION_SECRET` first ([docs/auth.md](docs/auth.md)). Open http://localhost:3000. Without any API key the mentor runs in **mock mode** and streams canned answers. To use Gemini, paste your own key in **Settings** (kept only in your browser), or, for local development, copy `.env.example` to `.env.local` and fill it in. See [docs/ai-providers.md](docs/ai-providers.md).
 
 ## Status
 
-Step 7 of [the plan](docs/steps.md): the mentor answers with Google Gemini using **your own API key** (Settings), or the mock without one. Conversations, profile, theme, model choice and key are saved in the browser.
+Step 9 of [the plan](docs/steps.md) (steps 6 and 8 are optional and skipped for now): **GitHub login** is required, and the mentor answers with Google Gemini using **your own API key** (Settings), or the mock without one. Conversations, profile, theme, model choice and key are saved in the browser.
