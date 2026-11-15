@@ -7,7 +7,8 @@ import { useLocalStore } from "@/lib/local-store";
 
 type Notice = { kind: "ok" | "error"; text: string };
 
-export function SettingsForm() {
+// serverKey: whether SkillForge's server has its own Gemini key (only that fact, never the key).
+export function SettingsForm({ serverKey }: { serverKey: boolean }) {
   const keys = useLocalStore(apiKeyStore);
   const [draft, setDraft] = useState("");
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -69,11 +70,20 @@ export function SettingsForm() {
         <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-8">
           <section className="card flex flex-col gap-4 p-5 md:p-6">
             <h2 className="text-base font-semibold">Your Gemini API key</h2>
-            <p className="text-sm text-muted">
-              SkillForge uses <strong>your own</strong> Google Gemini key, so you control your usage. The key is saved
-              only in this browser. It is sent to SkillForge&apos;s server with each message, used for that one call to
-              Gemini, and never stored or logged there. Without a key, the mock mentor answers.
-            </p>
+            {serverKey ? (
+              <p className="text-sm text-muted">
+                <strong className="text-foreground">Gemini works without a key of your own:</strong> SkillForge&apos;s
+                server has one. To use your own quota instead, save your key here. It is kept only in this browser,
+                sent to SkillForge&apos;s server with each message, used for that one call to Gemini, and never stored
+                or logged there.
+              </p>
+            ) : (
+              <p className="text-sm text-muted">
+                SkillForge uses <strong>your own</strong> Google Gemini key, so you control your usage. The key is saved
+                only in this browser. It is sent to SkillForge&apos;s server with each message, used for that one call
+                to Gemini, and never stored or logged there. Without a key, the mock mentor answers.
+              </p>
+            )}
             <p className="text-sm">
               Get a free key in{" "}
               <a
@@ -106,7 +116,7 @@ export function SettingsForm() {
               </div>
             ) : (
               <p className="rounded-lg border border-dashed border-border-strong px-3 py-2 text-sm text-muted">
-                No key saved in this browser.
+                No key saved in this browser.{serverKey && " The chat uses SkillForge's key."}
               </p>
             )}
 

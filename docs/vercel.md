@@ -13,16 +13,16 @@ There is no `vercel.json`. Vercel detects Next.js and runs `npm install` and `np
 2. Click **Add New… → Project**. Under **Import Git Repository**, choose `kaffailevi/skillforge`.
    - If the repo is not listed: **Adjust GitHub App Permissions**, and allow the Vercel app to access this repo.
 3. Framework preset: **Next.js**. Leave the build settings and the root directory as they are.
-4. **Environment Variables:** none for now. Do **not** add `GOOGLE_GENERATIVE_AI_API_KEY` here; see below.
+4. **Environment Variables:** none for now; they came with later steps (see below).
 5. Click **Deploy**. The site is then live at `https://<project>.vercel.app`.
 
 ## Environment variables
 
-Each visitor brings their own Gemini key in **Settings** (see [ai-providers.md](ai-providers.md#bring-your-own-key)), so there is no AI key on Vercel.
+Gemini runs on the server's key, or on a learner's own key from **Settings**, which wins (see [ai-providers.md](ai-providers.md#the-servers-key-or-your-own)).
 
 | Variable | Set on Vercel? | Why |
 | --- | --- | --- |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | **No** | If set, every visitor without a key would use it, and spend your quota. Use it only in `.env.local`. |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Yes (Production), secret, **for the exam demo** | Every signed-in learner without their own key uses it: your quota. Remove it and redeploy when the demo is over. |
 | `GITHUB_CLIENT_ID` | Yes (Production) | The **production** GitHub OAuth app ([auth.md](auth.md)) |
 | `GITHUB_CLIENT_SECRET` | Yes (Production), secret | The production app's client secret |
 | `SESSION_SECRET` | Yes (Production), secret | Encrypts the session cookie; not the same value as locally |

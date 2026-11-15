@@ -6,7 +6,7 @@ SkillForge talks to language models through the **Vercel AI SDK** (`ai`, `@ai-sd
 
 | Provider | Models | Needs | When it is used |
 | --- | --- | --- | --- |
-| Google Gemini (default) | `gemini-3.5-flash`, `gemini-3.5-flash-lite` | The learner's own key (Settings), or a server key for local development | When a key is available |
+| Google Gemini (default) | `gemini-3.5-flash`, `gemini-3.5-flash-lite` | The learner's own key (Settings), or the server's key | When a key is available |
 | Mock | `mock-mentor` | nothing | Always available; the fallback when there is no key |
 
 The learner picks the model in the chat header. The choice is saved in the browser (`skillforge.model`). A provider without a key is listed as "add your key in Settings" and cannot be picked.
@@ -16,14 +16,21 @@ Where the code is:
 - The server side (key handling and model creation): [src/lib/server/models.ts](../src/lib/server/models.ts).
 - The mock: [src/lib/server/mock-mentor.ts](../src/lib/server/mock-mentor.ts).
 
-## Bring your own key
+## The server's key, or your own
 
-SkillForge is public, so it does **not** pay for other people's usage. Every learner uses their own Gemini key:
+Two ways to give the mentor a Gemini key; the learner's own key always wins:
+
+- **The server's key** (`GOOGLE_GENERATIVE_AI_API_KEY`, below). Set on Vercel since 15 Nov 2026, so the exam committee and any signed-in learner can use Gemini at once. Only signed-in learners reach `/api/chat` (GitHub login), but any GitHub account can sign in, so this is the owner's quota: remove the variable (and redeploy) when the demo is over, or rotate the key if usage looks wrong. Settings then says "Gemini works without a key of your own".
+- **Bring your own key**, as below.
+
+### Bring your own key
+
+A learner can use their own Gemini key instead:
 
 1. **Settings** → paste the key → **Save**. The key is stored only in that browser (`localStorage`, `skillforge.apiKeys`). **Test key** makes one tiny call through `/api/check-key`.
 2. With each message, the browser sends the key in the `X-Gemini-Api-Key` header to `/api/chat` on our own server, never to anyone else.
 3. The server validates the header with Zod and creates the Gemini client for that one request with `createGoogle({ apiKey })`. It never stores, logs or returns the key. Errors are logged by message only, so a key can't end up in the logs.
-4. Without a key, the learner gets the mock mentor and a hint pointing to Settings.
+4. Without a key of their own, the learner uses the server's key if there is one; otherwise the mock mentor and a hint pointing to Settings.
 
 Trade-offs, accepted on purpose:
 - The key is readable by scripts running on the SkillForge origin. Answers are rendered without raw HTML (see `src/components/markdown.tsx`), which keeps injected scripts out.
@@ -33,11 +40,11 @@ Trade-offs, accepted on purpose:
 
 | Variable | Secret or config | Reaches the browser? | Where to set it |
 | --- | --- | --- | --- |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | **Secret** | No; only the fact that it is set does | `.env.local` for local development only |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | **Secret** | No; only the fact that it is set does | `.env.local`; on Vercel (Production, Sensitive) for the demo |
 
-If this variable is set, the server uses it for every request that comes without a learner key. **Do not set it on Vercel** for the public deployment, or every visitor would use your quota. Locally it is convenient: the app works without visiting Settings.
+If this variable is set, the server uses it for every request that comes without a learner key, so every signed-in learner uses your quota. Gemini's own rate limits (429) still apply and show as a friendly message.
 
-The home page is prerendered, so whether a server key exists is fixed at build time. After changing `.env.local`, restart `npm run dev`.
+The home and Settings pages are prerendered, so whether a server key exists is fixed at build time. After changing `.env.local`, restart `npm run dev`; after changing it on Vercel, **redeploy**.
 
 ### Getting a Gemini key
 
