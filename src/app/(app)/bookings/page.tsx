@@ -19,7 +19,8 @@ export default function BookingsPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-4 py-8">
           <p className="text-sm text-muted">
-            Confirmations from the events service for your GitHub email. Book seats by asking the mentor in the chat.
+            What the events service sent to your GitHub email: confirmations, cancellations and changes to your events.
+            Book seats by asking the mentor in the chat.
           </p>
           <Suspense fallback={<p className="mt-6 text-sm text-muted">Loading your bookings…</p>}>
             <BookingList />
@@ -69,7 +70,7 @@ async function BookingList() {
           <div className="min-w-0">
             <p className="font-medium">{notification.text}</p>
             <p className="mt-1 text-xs text-muted">
-              Confirmed {when.format(new Date(`${notification.notifiedAt}Z`))} · booking{" "}
+              Sent {when.format(new Date(`${notification.notifiedAt}Z`))} · booking{" "}
               {notification.bookingId.slice(0, 8)}
             </p>
           </div>

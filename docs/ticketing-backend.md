@@ -14,7 +14,7 @@ The backend is called **only from the server** (`src/lib/server/ticketing.ts`), 
 | --- | --- | --- |
 | `GET /events?name=` | tool `get_events` | Upcoming events only. The city is filtered in SkillForge by the start of the name, ignoring case and diacritics ("Cluj" finds "Cluj-Napoca"), because the backend matches only a whole city name. |
 | `POST /events/{id}/bookings` `{customerEmail, seats}` | tool `book_event_seat` | Runs only after the learner clicks **Approve**. The email is always the signed-in learner's GitHub email, never one the model writes. |
-| `GET /notifications?customerEmail=` | the **Bookings** page | The confirmations the notification service received. A new booking appears after a few seconds (it travels through RabbitMQ). |
+| `GET /notifications?customerEmail=` | the **Bookings** page | Everything the notification service received for that email: confirmations, cancellations, event changes. A new booking appears after a few seconds (it travels through RabbitMQ). |
 
 Every request carries an `X-Correlation-Id` (`skillforge-<uuid>`), so one request can be followed through the logs of all three backend services.
 

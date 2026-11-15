@@ -11,7 +11,7 @@ export function friendlyError(error: unknown): string {
     if (status === 429) return "The AI provider's rate limit was reached. Wait a minute, then retry.";
     if (status === 503) return "The model is overloaded right now. Retry, or pick another model.";
     if (status === 401 || status === 403 || (status === 400 && /api key/i.test(cause.message))) {
-      return "Gemini rejected the API key. Check it in Settings.";
+      return "Gemini rejected the API key. If you saved your own key, check it in Settings.";
     }
   }
   return "The mentor could not answer right now. Please retry.";

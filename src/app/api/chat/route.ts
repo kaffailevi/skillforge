@@ -59,6 +59,8 @@ export async function POST(request: Request) {
 
   const user = await getCurrentUser();
   if (!user) return new Response("Sign in with GitHub first.", { status: 401 });
+  // Until the learner types a display name in Profile, the mentor calls them by their GitHub name.
+  const learner = profile.displayName ? profile : { ...profile, displayName: user.name };
 
   // Either a new question, or the learner's Approve/Reject on a tool call (the answer then continues).
   const lastMessage = messages.at(-1);
@@ -71,7 +73,7 @@ export async function POST(request: Request) {
 
   if (model.provider === "mock") {
     if (isApprovalReply) return new Response("The mock mentor has no tools.", { status: 400 });
-    const stream = mockMentorStream(mockMentorReply(question, profile), request.signal);
+    const stream = mockMentorStream(mockMentorReply(question, learner), request.signal);
     return createUIMessageStreamResponse({ stream });
   }
 
@@ -83,7 +85,7 @@ export async function POST(request: Request) {
   const withTools = ticketingConfigured();
   const result = streamText({
     model: languageModel(model, key),
-    instructions: withTools ? `${buildSystemPrompt(profile)}\n\n${EVENT_TOOL_RULES}` : buildSystemPrompt(profile),
+    instructions: withTools ? `${buildSystemPrompt(learner)}\n\n${EVENT_TOOL_RULES}` : buildSystemPrompt(learner),
     messages: await convertToModelMessages(messages as UIMessage[]),
     tools: withTools ? eventTools(user) : undefined,
     toolApproval: { book_event_seat: "user-approval" },

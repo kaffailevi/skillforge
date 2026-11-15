@@ -81,6 +81,7 @@ function ProfileEditor({ saved }: { saved: Profile }) {
               onChange={(event) => setDisplayName(event.target.value)}
               maxLength={60}
               autoComplete="name"
+              placeholder="Leave empty to use your GitHub name"
               className={`${inputClass} font-normal`}
             />
           </label>

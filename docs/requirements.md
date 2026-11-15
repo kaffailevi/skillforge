@@ -4,6 +4,8 @@ SkillForge is an AI career mentor for people learning tech. You sign in with Git
 
 This file is the source of truth for scope and acceptance criteria. Each feature is delivered in one step of [steps.md](steps.md).
 
+**Built so far (15 Nov 2026):** F1, F2, F3, F4 (Gemini + mock, own key or the server's key), F5 (without facts), F7, F9, F12. **Not built:** F6, F8 (optional), F10 and F11, so the learning plan and remembered facts described here do not exist yet, and data stays in the browser.
+
 ## Users
 
 - **Learner** — a developer or student who signs in with a GitHub account that has a verified email. Sees and changes only their own data.
@@ -31,12 +33,13 @@ The learner writes a message; the mentor's answer appears word by word.
 ### F4 — AI providers
 - Default provider: **Google Gemini** (Gemini 3.5 Flash; Flash-Lite as the faster option). Second provider (step 6): **Anthropic Claude Haiku** or **OpenAI, a mini model**, whichever key is available. A **mock** provider streams canned mentor answers and is used when no API key is configured, so the app works without any key.
 - The learner picks provider and model in the UI; the choice is remembered.
-- **Bring your own key:** each learner enters their own Gemini key in Settings. It is kept only in their browser and sent with each request to SkillForge's server, which uses it for that call and never stores or logs it. A server key (`.env.local`) exists only for local development and is never set on the public deployment.
-- Acceptance: with no keys the mock answers; with a key the real model answers; switching provider changes who answers the next message; on the public site a visitor without their own key cannot use Gemini.
+- **Bring your own key:** each learner can enter their own Gemini key in Settings. It is kept only in their browser and sent with each request to SkillForge's server, which uses it for that call and never stores or logs it.
+- **Server key:** `GOOGLE_GENERATIVE_AI_API_KEY` (in `.env.local`, and on Vercel since 15 Nov 2026 for the exam demo). Every signed-in learner without their own key then uses it; a learner's own key always wins. Settings says which applies.
+- Acceptance: with no keys the mock answers; with a key the real model answers; switching provider changes who answers the next message; with a server key, a signed-in learner gets Gemini without visiting Settings.
 
 ### F5 — Mentor behaviour
 - A system prompt makes the model a tech career mentor: concrete, encouraging, honest about gaps, short by default, asks one clarifying question when the goal is unclear.
-- The system prompt includes the profile (F3) and the remembered facts (F10).
+- The system prompt includes the profile (F3; without a display name, the GitHub name) and the remembered facts (F11).
 
 ### F6 — Markdown export
 - A conversation can be downloaded as a `.md` file (title, date, each message with its author).

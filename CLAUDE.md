@@ -19,7 +19,7 @@ This is Next.js 16.4 with Cache Components; read [AGENTS.md](AGENTS.md) and the 
 - Exception: each learner's own Gemini key stays in their browser and reaches the server only in the `X-Gemini-Api-Key` header ([docs/ai-providers.md](docs/ai-providers.md#bring-your-own-key)). Never store, log or return it. `GOOGLE_GENERATIVE_AI_API_KEY` may be set on Vercel (since 15 Nov 2026, for the exam demo): every signed-in learner without their own key then uses it, so it is the owner's quota; a learner's own key always wins.
 - Validate every input that crosses a boundary (request bodies, tool inputs) with Zod.
 - Handle the error path of every external call; show the user a readable message.
-- Styling: Tailwind utility classes and the theme tokens in `src/app/globals.css`. Keep the UI plain; improve it only when a step asks.
+- Styling: Tailwind utility classes, the theme tokens and the shared classes in `src/app/globals.css` (`.btn` + `.btn-primary` / `-secondary` / `-ghost` / `-danger`, `.field`, `.card`, `.page-header`, `.page-title`). Reuse them instead of new one-off styles. The sidebar uses the `sidebar-*` tokens (ink in both themes); the ember accent marks only what can be acted on and where you are.
 - UI text is in English.
 
 ## Commands
