@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { BrandMark } from "@/components/brand";
 import { MenuIcon } from "@/components/icons";
 import { Sidebar } from "@/components/sidebar";
 
@@ -22,17 +23,18 @@ export function AppShell({ children, userMenu }: { children: ReactNode; userMenu
       <Sidebar open={menuOpen} onNavigate={() => setMenuOpen(false)} userMenu={userMenu} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-3 border-b border-border px-4 py-3 md:hidden">
+        <header className="flex items-center gap-3 bg-sidebar px-3 py-2.5 text-sidebar-foreground md:hidden">
           <button
             type="button"
             aria-label="Open menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(true)}
-            className="rounded-md p-1 hover:bg-surface"
+            className="rounded-lg p-2 hover:bg-sidebar-hover"
           >
             <MenuIcon />
           </button>
-          <span className="font-semibold">SkillForge</span>
+          <BrandMark size="sm" />
+          <span className="font-semibold tracking-tight">SkillForge</span>
         </header>
         <main className="flex min-h-0 flex-1 flex-col">{children}</main>
       </div>

@@ -18,8 +18,7 @@ export function ProfileForm() {
 type SkillRow = { key: string; name: string; level: number };
 type Notice = { kind: "saved" | "error"; text: string };
 
-const inputClass =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 focus:border-accent focus:outline-none";
+const inputClass = "field";
 
 function ProfileEditor({ saved }: { saved: Profile }) {
   const [displayName, setDisplayName] = useState(saved.displayName);
@@ -48,21 +47,31 @@ function ProfileEditor({ saved }: { saved: Profile }) {
     event.preventDefault();
     const parsed = Profile.safeParse(draft);
     if (!parsed.success) {
-      setNotice({ kind: "error", text: parsed.error.issues.map((issue) => issue.message).join(" ") });
+      setNotice({
+        kind: "error",
+        text: parsed.error.issues.map((issue) => issue.message).join(" "),
+      });
       return;
     }
     profileStore.set(parsed.data);
-    setNotice({ kind: "saved", text: "Profile saved. The mentor uses it from your next message." });
+    setNotice({
+      kind: "saved",
+      text: "Profile saved. The mentor uses it from your next message.",
+    });
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="border-b border-border px-4 py-3 md:px-6">
-        <h1 className="font-medium">Profile</h1>
+      <header className="page-header">
+        <h1 className="page-title">Profile</h1>
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <form onSubmit={save} onChange={() => setNotice(null)} className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-6">
+        <form
+          onSubmit={save}
+          onChange={() => setNotice(null)}
+          className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-8"
+        >
           <p className="text-sm text-muted">The mentor reads this before every answer.</p>
 
           <label className="flex flex-col gap-1 text-sm font-medium">
@@ -115,9 +124,13 @@ function ProfileEditor({ saved }: { saved: Profile }) {
                 />
                 <select
                   value={skill.level}
-                  onChange={(event) => updateSkill(skill.key, { level: Number(event.target.value) })}
+                  onChange={(event) =>
+                    updateSkill(skill.key, {
+                      level: Number(event.target.value),
+                    })
+                  }
                   aria-label={`Level for ${skill.name || "this skill"}`}
-                  className="rounded-lg border border-border bg-background px-2 py-2 text-sm"
+                  className="field w-auto"
                 >
                   {LEVELS.map((level) => (
                     <option key={level} value={level}>
@@ -132,7 +145,7 @@ function ProfileEditor({ saved }: { saved: Profile }) {
                     setSkills((rows) => rows.filter((row) => row.key !== skill.key));
                     setNotice(null);
                   }}
-                  className="rounded p-2 text-muted hover:text-danger"
+                  className="btn btn-danger p-2"
                 >
                   <TrashIcon />
                 </button>
@@ -142,24 +155,24 @@ function ProfileEditor({ saved }: { saved: Profile }) {
               type="button"
               disabled={skills.length >= MAX_SKILLS}
               onClick={() => setSkills((rows) => [...rows, { key: crypto.randomUUID(), name: "", level: MIN_LEVEL }])}
-              className="self-start rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-surface disabled:opacity-40"
+              className="btn btn-secondary self-start"
             >
               Add skill
             </button>
           </fieldset>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" className="rounded-lg bg-accent px-4 py-2 font-medium text-accent-foreground">
+            <button type="submit" className="btn btn-primary">
               Save profile
             </button>
             {notice && (
-              <p role="status" className={`text-sm ${notice.kind === "error" ? "text-danger" : "text-muted"}`}>
+              <p role="status" className={`text-sm ${notice.kind === "error" ? "text-danger" : "text-success"}`}>
                 {notice.text}
               </p>
             )}
           </div>
 
-          <details className="rounded-lg border border-border p-3 text-sm">
+          <details className="card p-4 text-sm">
             <summary className="cursor-pointer font-medium">What the mentor sees (system prompt)</summary>
             <pre className="mt-3 font-mono text-xs whitespace-pre-wrap text-muted">{preview}</pre>
           </details>

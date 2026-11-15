@@ -2,6 +2,7 @@
 
 import { getToolName, type DynamicToolUIPart, type ToolUIPart } from "ai";
 import Link from "next/link";
+import { CheckIcon, TicketIcon } from "@/components/icons";
 
 // How a tool call looks in the chat (step 12): a short status line while it runs, a compact
 // result, and for book_event_seat an approval card. Nothing is booked before "Approve".
@@ -9,12 +10,26 @@ import Link from "next/link";
 type Part = ToolUIPart | DynamicToolUIPart;
 type Respond = (approvalId: string, approved: boolean) => void;
 
-type EventItem = { id: string; name: string; city: string; venueName: string; startsAt: string; availableSeats: number };
+type EventItem = {
+  id: string;
+  name: string;
+  city: string;
+  venueName: string;
+  startsAt: string;
+  availableSeats: number;
+};
 type ToolOutput =
-  | { ok: true; events?: EventItem[]; booking?: { seats: number; eventId: string } }
+  | {
+      ok: true;
+      events?: EventItem[];
+      booking?: { seats: number; eventId: string };
+    }
   | { ok: false; message: string };
 
-const when = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });
+const when = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
 
 function formatStart(startsAt: string): string {
   const date = new Date(startsAt); // a local date-time without a zone: read as local time
@@ -23,7 +38,13 @@ function formatStart(startsAt: string): string {
 
 export function ToolPart({ part, onRespond }: { part: Part; onRespond: Respond }) {
   const name = getToolName(part);
-  const input = (part.input ?? {}) as { city?: string; name?: string; eventName?: string; eventId?: string; seats?: number };
+  const input = (part.input ?? {}) as {
+    city?: string;
+    name?: string;
+    eventName?: string;
+    eventId?: string;
+    seats?: number;
+  };
 
   if (name === "book_event_seat") return <BookingCard part={part} input={input} onRespond={onRespond} />;
 
@@ -38,17 +59,18 @@ export function ToolPart({ part, onRespond }: { part: Part; onRespond: Respond }
     if (!output.ok) return <Status>{output.message}</Status>;
     const events = output.events ?? [];
     return (
-      <details className="rounded-lg border border-border bg-surface px-3 py-2 text-sm">
-        <summary className="cursor-pointer text-muted">
+      <details className="card px-4 py-3 text-sm">
+        <summary className="cursor-pointer font-medium">
           Found {events.length} event{events.length === 1 ? "" : "s"}
           {input.city ? ` in ${input.city}` : ""}
         </summary>
-        <ul className="mt-2 flex flex-col gap-1">
+        <ul className="mt-3 flex flex-col divide-y divide-border">
           {events.map((event) => (
-            <li key={event.id}>
-              <span className="font-medium">{event.name}</span>{" "}
+            <li key={event.id} className="flex flex-col gap-0.5 py-2">
+              <span className="font-medium">{event.name}</span>
               <span className="text-muted">
-                · {event.city}, {event.venueName} · {formatStart(event.startsAt)} · {event.availableSeats} free
+                {event.city}, {event.venueName} · {formatStart(event.startsAt)} ·{" "}
+                <span className="text-foreground">{event.availableSeats} seats free</span>
               </span>
             </li>
           ))}
@@ -75,22 +97,19 @@ function BookingCard({ part, input, onRespond }: CardProps) {
       return <Status>Preparing a booking…</Status>;
     case "approval-requested":
       return (
-        <div className="rounded-xl border border-accent/50 bg-surface p-3 text-sm">
-          <p className="font-medium">Book {what}?</p>
+        <div className="rounded-xl border border-accent/40 bg-accent-soft p-4 text-sm">
+          <p className="flex items-center gap-2 font-semibold">
+            <span className="text-accent">
+              <TicketIcon />
+            </span>
+            Book {what}?
+          </p>
           <p className="mt-1 text-muted">The booking uses your GitHub email. Nothing is booked until you approve.</p>
-          <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              onClick={() => onRespond(part.approval.id, true)}
-              className="rounded-lg bg-accent px-3 py-1.5 font-medium text-accent-foreground hover:opacity-90"
-            >
+          <div className="mt-4 flex gap-2">
+            <button type="button" onClick={() => onRespond(part.approval.id, true)} className="btn btn-primary">
               Approve
             </button>
-            <button
-              type="button"
-              onClick={() => onRespond(part.approval.id, false)}
-              className="rounded-lg border border-border px-3 py-1.5 hover:bg-background"
-            >
+            <button type="button" onClick={() => onRespond(part.approval.id, false)} className="btn btn-secondary">
               Reject
             </button>
           </div>
@@ -106,9 +125,12 @@ function BookingCard({ part, input, onRespond }: CardProps) {
       const output = part.output as ToolOutput;
       if (!output.ok) return <Status>Not booked: {output.message}</Status>;
       return (
-        <p className="rounded-lg border border-border bg-surface px-3 py-2 text-sm">
-          ✓ Booked {what}.{" "}
-          <Link href="/bookings" className="text-accent underline">
+        <p className="card flex flex-wrap items-center gap-2 px-4 py-3 text-sm">
+          <span className="inline-flex size-6 items-center justify-center rounded-full bg-success/15 text-success">
+            <CheckIcon />
+          </span>
+          <span className="flex-1">Booked {what}.</span>
+          <Link href="/bookings" className="font-medium text-accent underline underline-offset-2">
             See your bookings
           </Link>
         </p>
@@ -120,5 +142,5 @@ function BookingCard({ part, input, onRespond }: CardProps) {
 }
 
 function Status({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm text-muted italic">{children}</p>;
+  return <p className="text-sm text-muted">{children}</p>;
 }

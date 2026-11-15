@@ -16,6 +16,8 @@ import { useLocalStore } from "@/lib/local-store";
 import { modelChoiceStore } from "@/lib/model-choice-store";
 import { profileStore } from "@/lib/profile-store";
 import { ModelChoice, PROVIDERS, resolveChoice, type ProviderId } from "@/lib/providers";
+import { BrandMark } from "@/components/brand";
+import { ArrowUpIcon, StopIcon } from "@/components/icons";
 import { Markdown } from "@/components/markdown";
 import { ToolPart } from "@/components/tool-part";
 
@@ -27,7 +29,11 @@ const SUGGESTIONS = [
 
 // The browser stores plain text messages; useChat works with UIMessages made of parts.
 function toUIMessage(message: ChatMessage): UIMessage {
-  return { id: message.id, role: message.role, parts: [{ type: "text", text: message.content }] };
+  return {
+    id: message.id,
+    role: message.role,
+    parts: [{ type: "text", text: message.content }],
+  };
 }
 
 // An answer is worth showing once it has words or a tool call (a tool card).
@@ -89,10 +95,7 @@ function ChatSession({ id, conversation, choice, available, serverProviders }: S
         api: "/api/chat",
         body: () => ({
           profile: profileStore.get(),
-          model: resolveChoice(
-            modelChoiceStore.get(),
-            availableProviders(serverProviders, apiKeyStore.get().google),
-          ),
+          model: resolveChoice(modelChoiceStore.get(), availableProviders(serverProviders, apiKeyStore.get().google)),
         }),
         headers: () => keyHeaders(),
       }),
@@ -148,34 +151,35 @@ function ChatSession({ id, conversation, choice, available, serverProviders }: S
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="flex items-center gap-3 border-b border-border px-4 py-2 md:px-6">
-        <h1 className="min-w-0 flex-1 truncate font-medium">{conversation?.title ?? "New chat"}</h1>
+      <header className="page-header">
+        <h1 className="page-title">{conversation?.title ?? "New chat"}</h1>
         <ModelPicker choice={choice} available={available} disabled={busy} />
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-3xl px-4 py-6">
+        <div className="mx-auto max-w-3xl px-4 py-8">
           {visible.length === 0 ? (
-            <div className="flex flex-col items-center gap-4 pt-10 text-center">
-              <h2 className="text-xl font-semibold">What do you want to learn next?</h2>
-              <p className="text-sm text-muted">Ask your mentor anything about your tech career.</p>
+            <div className="flex flex-col items-center gap-3 pt-8 text-center">
+              <BrandMark size="lg" />
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight">What do you want to learn next?</h2>
+              <p className="text-sm text-muted">Ask your mentor anything about your tech career, or find a workshop.</p>
               {!available.includes("google") && (
-                <p className="rounded-lg border border-border px-3 py-2 text-sm">
+                <p className="mt-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm">
                   You are talking to the <strong>mock mentor</strong>. To use Gemini, add your own API key in{" "}
-                  <Link href="/settings" className="text-accent underline">
+                  <Link href="/settings" className="font-medium text-accent underline underline-offset-2">
                     Settings
                   </Link>
                   .
                 </p>
               )}
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="mt-6 grid w-full gap-3 sm:grid-cols-3">
                 {SUGGESTIONS.map((suggestion) => (
                   <button
                     key={suggestion}
                     type="button"
                     disabled={busy}
                     onClick={() => send(suggestion)}
-                    className="rounded-full border border-border px-3 py-1.5 text-sm hover:bg-surface disabled:opacity-40"
+                    className="card px-4 py-3 text-left text-sm transition-colors hover:border-accent/60 hover:bg-accent-soft disabled:opacity-50"
                   >
                     {suggestion}
                   </button>
@@ -183,20 +187,22 @@ function ChatSession({ id, conversation, choice, available, serverProviders }: S
               </div>
             </div>
           ) : (
-            <ol className="flex flex-col gap-4">
+            <ol className="flex flex-col gap-6">
               {visible.map((message) =>
                 message.role === "user" ? (
                   <li
                     key={message.id}
-                    className="max-w-[85%] self-end rounded-2xl bg-accent px-4 py-2 whitespace-pre-wrap text-accent-foreground"
+                    className="max-w-[85%] self-end rounded-2xl rounded-br-md border border-border bg-surface px-4 py-2.5 whitespace-pre-wrap"
                   >
                     {toChatMessage(message).content}
                   </li>
                 ) : hasVisibleContent(message) ? (
-                  <li key={message.id} className="flex max-w-[85%] flex-col gap-2 self-start">
+                  <li key={message.id} className="flex max-w-[85%] flex-col gap-3 self-start leading-relaxed">
                     {message.parts.map((part, index) =>
                       part.type === "text" ? (
-                        part.text ? <Markdown key={index}>{part.text}</Markdown> : null
+                        part.text ? (
+                          <Markdown key={index}>{part.text}</Markdown>
+                        ) : null
                       ) : isToolUIPart(part) ? (
                         <ToolPart key={part.toolCallId} part={part} onRespond={respond} />
                       ) : null,
@@ -204,47 +210,76 @@ function ChatSession({ id, conversation, choice, available, serverProviders }: S
                   </li>
                 ) : null,
               )}
-              {waitingForWords && <li className="animate-pulse self-start text-muted">Thinking…</li>}
+              {waitingForWords && (
+                <li className="flex items-center gap-2 self-start text-sm text-muted" role="status">
+                  <span className="flex gap-1" aria-hidden="true">
+                    <span className="size-1.5 animate-bounce rounded-full bg-accent [animation-delay:-0.3s]" />
+                    <span className="size-1.5 animate-bounce rounded-full bg-accent [animation-delay:-0.15s]" />
+                    <span className="size-1.5 animate-bounce rounded-full bg-accent" />
+                  </span>
+                  Thinking…
+                </li>
+              )}
             </ol>
           )}
           <div ref={endRef} />
         </div>
       </div>
 
-      <div className="border-t border-border">
-        <div className="mx-auto flex max-w-3xl flex-col gap-2 p-4">
+      <div className="px-4 pt-2 pb-4">
+        <div className="mx-auto flex max-w-3xl flex-col gap-2">
           {error && !busy && (
-            <div role="alert" className="flex items-center gap-3 rounded-lg border border-danger/40 px-3 py-2 text-sm">
+            <div
+              role="alert"
+              className="flex items-center gap-3 rounded-lg border border-danger/40 bg-danger/5 px-3 py-2 text-sm"
+            >
               <span className="flex-1">{error.message || "Something went wrong."}</span>
-              <button type="button" onClick={() => void regenerate()} className="font-medium underline">
+              <button type="button" onClick={() => void regenerate()} className="btn btn-secondary py-1">
                 Retry
               </button>
             </div>
           )}
 
-          <form onSubmit={onSubmit} className="flex gap-2">
+          <form
+            onSubmit={onSubmit}
+            className="rounded-2xl border border-border-strong bg-card shadow-sm transition-shadow focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20"
+          >
             <textarea
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={onKeyDown}
               rows={2}
               aria-label="Message"
-              placeholder="Message your mentor (Enter to send, Shift+Enter for a new line)"
-              className="flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2 focus:border-accent focus:outline-none"
+              placeholder="Message your mentor…"
+              className="block w-full resize-none bg-transparent px-4 pt-3 placeholder:text-muted/70 focus:outline-none focus-visible:outline-none"
             />
-            {busy ? (
-              <button type="button" onClick={() => void stop()} className="rounded-xl border border-border px-4 font-medium">
-                Stop
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={!input.trim()}
-                className="rounded-xl bg-accent px-4 font-medium text-accent-foreground disabled:opacity-40"
-              >
-                Send
-              </button>
-            )}
+            <div className="flex items-center gap-3 px-3 pb-3">
+              <p className="flex-1 pl-1 text-xs text-muted max-sm:hidden">
+                <kbd className="font-sans font-medium">Enter</kbd> to send ·{" "}
+                <kbd className="font-sans font-medium">Shift + Enter</kbd> for a new line
+              </p>
+              {busy ? (
+                <button
+                  type="button"
+                  onClick={() => void stop()}
+                  aria-label="Stop the answer"
+                  title="Stop"
+                  className="ml-auto inline-flex size-9 items-center justify-center rounded-full bg-foreground text-background transition-opacity hover:opacity-85"
+                >
+                  <StopIcon />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={!input.trim()}
+                  aria-label="Send"
+                  title="Send"
+                  className="ml-auto inline-flex size-9 items-center justify-center rounded-full bg-accent text-accent-foreground transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted"
+                >
+                  <ArrowUpIcon />
+                </button>
+              )}
+            </div>
           </form>
         </div>
       </div>
@@ -252,7 +287,11 @@ function ChatSession({ id, conversation, choice, available, serverProviders }: S
   );
 }
 
-type PickerProps = { choice: ModelChoice; available: ProviderId[]; disabled: boolean };
+type PickerProps = {
+  choice: ModelChoice;
+  available: ProviderId[];
+  disabled: boolean;
+};
 
 // Providers without an API key on the server are listed but cannot be picked.
 function ModelPicker({ choice, available, disabled }: PickerProps) {
@@ -268,7 +307,7 @@ function ModelPicker({ choice, available, disabled }: PickerProps) {
       value={`${choice.provider}:${choice.model}`}
       disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
-      className="max-w-[45%] rounded-lg border border-border bg-background px-2 py-1 text-sm disabled:opacity-60"
+      className="field w-auto max-w-[45%] py-1.5"
     >
       {PROVIDERS.map((provider) => {
         const ready = available.includes(provider.id);
