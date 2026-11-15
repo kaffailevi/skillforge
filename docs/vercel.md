@@ -26,6 +26,8 @@ Each visitor brings their own Gemini key in **Settings** (see [ai-providers.md](
 | `GITHUB_CLIENT_ID` | Yes (Production) | The **production** GitHub OAuth app ([auth.md](auth.md)) |
 | `GITHUB_CLIENT_SECRET` | Yes (Production), secret | The production app's client secret |
 | `SESSION_SECRET` | Yes (Production), secret | Encrypts the session cookie; not the same value as locally |
+| `TICKETING_API_URL` | Yes (Production) | The backend's api-gateway URL on Cloud Run ([ticketing-backend.md](ticketing-backend.md)) |
+| `TICKETING_API_KEY` | Yes (Production), secret | The gateway's API key |
 
 Later steps add variables (GitHub login, Supabase, the Java backend). Each one is listed in its own doc and set under **Project → Settings → Environment Variables**. After adding or changing a variable, **redeploy**: Deployments → ⋯ → Redeploy.
 

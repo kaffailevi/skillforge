@@ -53,6 +53,7 @@ export function Sidebar({ open, onNavigate, userMenu }: SidebarProps) {
       <nav aria-label="Pages" className="mt-3 flex flex-col px-2 text-sm">
         {[
           { href: "/", label: "Chat" },
+          { href: "/bookings", label: "Bookings" },
           { href: "/profile", label: "Profile" },
           { href: "/settings", label: "Settings" },
         ].map((link) => (

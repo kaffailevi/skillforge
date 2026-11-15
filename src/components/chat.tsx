@@ -1,7 +1,12 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
+import {
+  DefaultChatTransport,
+  isToolUIPart,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+  type UIMessage,
+} from "ai";
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { apiKeyStore, keyHeaders } from "@/lib/api-key-store";
@@ -12,20 +17,25 @@ import { modelChoiceStore } from "@/lib/model-choice-store";
 import { profileStore } from "@/lib/profile-store";
 import { ModelChoice, PROVIDERS, resolveChoice, type ProviderId } from "@/lib/providers";
 import { Markdown } from "@/components/markdown";
+import { ToolPart } from "@/components/tool-part";
 
 const SUGGESTIONS = [
   "What should I learn next?",
   "How do I get better at React?",
-  "Show me what your answers can format",
+  "Are there any React workshops in Cluj?",
 ];
-
-const transport = new DefaultChatTransport({ api: "/api/chat" });
 
 // The browser stores plain text messages; useChat works with UIMessages made of parts.
 function toUIMessage(message: ChatMessage): UIMessage {
   return { id: message.id, role: message.role, parts: [{ type: "text", text: message.content }] };
 }
 
+// An answer is worth showing once it has words or a tool call (a tool card).
+function hasVisibleContent(message: UIMessage): boolean {
+  return message.parts.some((part) => (part.type === "text" && part.text !== "") || isToolUIPart(part));
+}
+
+// Tool calls are not saved: the browser keeps only the words of each message.
 function toChatMessage(message: UIMessage): ChatMessage {
   return {
     id: message.id,
@@ -41,9 +51,7 @@ export function Chat({ serverProviders }: { serverProviders: ProviderId[] }) {
   const keys = useLocalStore(apiKeyStore);
   if (!state || !savedChoice || !keys) return <p className="p-6 text-sm text-muted">Loading…</p>;
 
-  const available: ProviderId[] =
-    keys.google && !serverProviders.includes("google") ? [...serverProviders, "google"] : serverProviders;
-
+  const available = availableProviders(serverProviders, keys.google);
   const conversation = state.conversations.find((item) => item.id === state.activeId) ?? null;
   return (
     <ChatSession
@@ -52,8 +60,13 @@ export function Chat({ serverProviders }: { serverProviders: ProviderId[] }) {
       conversation={conversation}
       choice={resolveChoice(savedChoice, available)}
       available={available}
+      serverProviders={serverProviders}
     />
   );
+}
+
+function availableProviders(serverProviders: ProviderId[], googleKey: string): ProviderId[] {
+  return googleKey && !serverProviders.includes("google") ? [...serverProviders, "google"] : serverProviders;
 }
 
 type SessionProps = {
@@ -61,12 +74,36 @@ type SessionProps = {
   conversation: Conversation | null;
   choice: ModelChoice;
   available: ProviderId[];
+  serverProviders: ProviderId[];
 };
 
-function ChatSession({ id, conversation, choice, available }: SessionProps) {
+function ChatSession({ id, conversation, choice, available, serverProviders }: SessionProps) {
   const [input, setInput] = useState("");
   const [initialMessages] = useState(() => conversation?.messages.map(toUIMessage) ?? []);
-  const { messages, sendMessage, regenerate, stop, status, error } = useChat({ id, messages: initialMessages, transport });
+
+  // Profile, model and key are read from the browser's stores at send time (also for the automatic
+  // request after Approve/Reject), so a change counts from the next message.
+  const [transport] = useState(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        body: () => ({
+          profile: profileStore.get(),
+          model: resolveChoice(
+            modelChoiceStore.get(),
+            availableProviders(serverProviders, apiKeyStore.get().google),
+          ),
+        }),
+        headers: () => keyHeaders(),
+      }),
+  );
+
+  const { messages, sendMessage, regenerate, stop, status, error, addToolApprovalResponse } = useChat({
+    id,
+    messages: initialMessages,
+    transport,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+  });
   const busy = status === "submitted" || status === "streaming";
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -82,16 +119,15 @@ function ChatSession({ id, conversation, choice, available }: SessionProps) {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages, status]);
 
-  // Read at send time, so a profile, model or key change counts from the next message.
-  function requestBody() {
-    return { body: { profile: profileStore.get(), model: choice }, headers: keyHeaders() };
-  }
-
   function send(text: string) {
     const content = text.trim();
     if (!content || busy) return;
     setInput("");
-    void sendMessage({ text: content }, requestBody());
+    void sendMessage({ text: content });
+  }
+
+  function respond(approvalId: string, approved: boolean) {
+    void addToolApprovalResponse({ id: approvalId, approved });
   }
 
   function onSubmit(event: FormEvent) {
@@ -106,7 +142,9 @@ function ChatSession({ id, conversation, choice, available }: SessionProps) {
     }
   }
 
-  const visible = messages.filter((message) => message.role !== "system").map(toChatMessage);
+  const visible = messages.filter((message) => message.role !== "system");
+  const last = visible.at(-1);
+  const waitingForWords = busy && (last?.role === "user" || (last !== undefined && !hasVisibleContent(last)));
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -152,17 +190,21 @@ function ChatSession({ id, conversation, choice, available }: SessionProps) {
                     key={message.id}
                     className="max-w-[85%] self-end rounded-2xl bg-accent px-4 py-2 whitespace-pre-wrap text-accent-foreground"
                   >
-                    {message.content}
+                    {toChatMessage(message).content}
                   </li>
-                ) : message.content ? (
-                  <li key={message.id} className="max-w-[85%] self-start">
-                    <Markdown>{message.content}</Markdown>
+                ) : hasVisibleContent(message) ? (
+                  <li key={message.id} className="flex max-w-[85%] flex-col gap-2 self-start">
+                    {message.parts.map((part, index) =>
+                      part.type === "text" ? (
+                        part.text ? <Markdown key={index}>{part.text}</Markdown> : null
+                      ) : isToolUIPart(part) ? (
+                        <ToolPart key={part.toolCallId} part={part} onRespond={respond} />
+                      ) : null,
+                    )}
                   </li>
                 ) : null,
               )}
-              {busy && (visible.at(-1)?.role === "user" || visible.at(-1)?.content === "") && (
-                <li className="animate-pulse self-start text-muted">Thinking…</li>
-              )}
+              {waitingForWords && <li className="animate-pulse self-start text-muted">Thinking…</li>}
             </ol>
           )}
           <div ref={endRef} />
@@ -174,7 +216,7 @@ function ChatSession({ id, conversation, choice, available }: SessionProps) {
           {error && !busy && (
             <div role="alert" className="flex items-center gap-3 rounded-lg border border-danger/40 px-3 py-2 text-sm">
               <span className="flex-1">{error.message || "Something went wrong."}</span>
-              <button type="button" onClick={() => void regenerate(requestBody())} className="font-medium underline">
+              <button type="button" onClick={() => void regenerate()} className="font-medium underline">
                 Retry
               </button>
             </div>

@@ -1,4 +1,5 @@
 import "server-only";
+import { createHmac } from "node:crypto";
 import { cookies } from "next/headers";
 import { sealData, unsealData } from "iron-session";
 import { z } from "zod";
@@ -45,6 +46,13 @@ export async function userFromSeal(seal: string | undefined): Promise<SessionUse
 // must sit inside a <Suspense> boundary (it reads the request's cookies).
 export async function getCurrentUser(): Promise<SessionUser | null> {
   return userFromSeal((await cookies()).get(SESSION_COOKIE)?.value);
+}
+
+// The key that signs tool approvals (step 12), derived from SESSION_SECRET so there is one secret
+// less to manage, yet never the same key that encrypts the cookie.
+export function toolApprovalSecret(): Uint8Array | undefined {
+  const secret = sessionSecret();
+  return secret ? createHmac("sha256", secret).update("skillforge tool approvals").digest() : undefined;
 }
 
 export async function sealSession(user: SessionUser): Promise<string> {
